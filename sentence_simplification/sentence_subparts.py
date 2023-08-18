@@ -86,26 +86,26 @@ def sanitize_input(sentence):
 
     return clean_hindi_text
 
-def write_output(dictionary, file_path, manual_evaluation):
-    with open(file_path, 'w') as file:
-        for key, value in dictionary.items():
-            line = f""
-            letter = ''
-            for i in range(len(value)):
-                item = value[i]
-                if item in manual_evaluation:
-                    TAG = 'Manual evaluation'
-                else:
-                    TAG = 'None'
-                if len(value) > 1:
-                    letter = string.ascii_lowercase[i]
-                if len(item) > 0 :
-                    # each sub sentence should end in poornaviram
-                    if item.endswith(',') or item.endswith('।'):
-                        item = item[:-1]
-                    item = item.strip() + ' ।'
-                    line = line + key + letter + "  " + item + "  " + TAG + "\n"
-            file.write(line)
+def write_output(dictionary, manual_evaluation):
+
+    for key, value in dictionary.items():
+        line = ""
+        letter = ''
+        for i in range(len(value)):
+            item = value[i]
+            if item in manual_evaluation:
+                TAG = 'Manual evaluation'
+            else:
+                TAG = 'None'
+            if len(value) > 1:
+                letter = string.ascii_lowercase[i]
+            if len(item) > 0 :
+                # each sub sentence should end in poornaviram
+                if item.endswith(',') or item.endswith('।'):
+                    item = item[:-1]
+                item = item.strip() + ' ।'
+                line = line + key + letter + "  " + item + "  " + TAG + "\n"
+        print(line)
     log("Output file written successfully")
 
 def is_prev_word_verb(parser_output, index):
@@ -287,23 +287,31 @@ def breakAllSimpleConnective(sentence, allSimpleConnectiveList, manual_evaluatio
         breakAllSimpleConnective(s, allSimpleConnectiveList, manual_evaluation)
 
     return
+def break_sentences(sentence_id, sentence):
 
-if __name__ == '__main__':
-    input_data = read_input(CONSTANTS.INPUT_FILE)
     output_data = {}
     manual_evaluation = []
-    for key, value in input_data.items():
-        if validate_sentence(value):
-            value = sanitize_input(value)
-            # First break the sentence by pair connectives
-            allPairedConnectiveList = []
-            breakAllPairedConnective(value, allPairedConnectiveList, manual_evaluation)
-            allSimpleConnectiveList = []
-            for s in allPairedConnectiveList:
-                breakAllSimpleConnective(s, allSimpleConnectiveList, manual_evaluation)
-        else:
-            allSimpleConnectiveList = ['Invalid input']
 
-        output_data[key] = allSimpleConnectiveList
-    write_output(output_data, CONSTANTS.OUTPUT_FILE, manual_evaluation)
+    if validate_sentence(sentence):
+        value = sanitize_input(sentence)
+        # First break the sentence by pair connectives
+        allPairedConnectiveList = []
+        breakAllPairedConnective(value, allPairedConnectiveList, manual_evaluation)
+        allSimpleConnectiveList = []
+        for s in allPairedConnectiveList:
+            breakAllSimpleConnective(s, allSimpleConnectiveList, manual_evaluation)
+    else:
+        allSimpleConnectiveList = ['Invalid input']
+
+    output_data[sentence_id] = allSimpleConnectiveList
+    write_output(output_data, manual_evaluation)
+
+if __name__ == '__main__':
+    sentence_id = sys.argv[1]
+    sentence = sys.argv[2]
+    #sentence_id = '12'
+    #sentence = 'यदि यह तश्तरी के आकार में जम जाए तो यह लैपोलिथ कहलाता है ।'
+    break_sentences(sentence_id, sentence)
+
+
 
