@@ -89,24 +89,17 @@ def sanitize_input(sentence):
 def write_output(dictionary, manual_evaluation):
 
     for key, value in dictionary.items():
-        line = ""
-        letter = ''
+        output = []
         for i in range(len(value)):
             item = value[i]
-            if item in manual_evaluation:
-                TAG = 'Manual evaluation'
-            else:
-                TAG = 'None'
-            if len(value) > 1:
-                letter = string.ascii_lowercase[i]
             if len(item) > 0 :
                 # each sub sentence should end in poornaviram
                 if item.endswith(',') or item.endswith('।'):
                     item = item[:-1]
                 item = item.strip() + ' ।'
-                line = line + key + letter + "  " + item + "  " + TAG + "\n"
-        print(line)
-    log("Output file written successfully")
+                output.append(item)
+        print(output)
+    #log("Output file written successfully")
 
 def is_prev_word_verb(parser_output, index):
     try:
